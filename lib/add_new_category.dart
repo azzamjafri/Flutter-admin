@@ -1,12 +1,14 @@
 
+import 'dart:html';
+import 'dart:typed_data';
 
-import 'dart:io';
-
+import 'package:AdminPanel/image_helper_class.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
-import 'package:image_picker_web/image_picker_web.dart';
 
+import 'dart:async';
 
 class NewCategory extends StatefulWidget {
   @override
@@ -14,88 +16,134 @@ class NewCategory extends StatefulWidget {
 }
 
 class _NewCategoryState extends State<NewCategory> {
-
   TextEditingController nameController = new TextEditingController();
-  String url;
-  // PickedFile pickedImage;
-  // Image pickedImage;
-  File pickedImage;
+  Uri url;
+  
+  List<String> _uploadedImages;
 
-  StorageReference storageReference ;
+  Uint8List uploadedImage;
+  String option1Text;
+
+  final databaseReference = Firestore.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-          body: Center(
+      body: Center(
         child: new Column(
-        children: [
-          SizedBox(
-            height: 100.0,
-          ),
-          Container(
-            height: 50.0,
-            width: MediaQuery.of(context).size.width / 5,
-            child: new TextField(
-              textAlign: TextAlign.center,
-              decoration: InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(40.0),
-                  borderSide: BorderSide(
-                    color: Colors.grey[200],
-                    width: 1.8,
-                  ),
-                ),
-                hintText: 'Enter Name',
-                fillColor: Colors.white,
-                filled: true,
-              ),
-              controller: nameController,
-              // validator: (val) => val.isEmpty ? 'Enter a name' : null,
+          children: [
+            SizedBox(
+              height: 100.0,
             ),
-          ),
-          Padding(padding: EdgeInsets.all(20.0)),
-          RaisedButton(
-            onPressed: () {
-              _pickImage();
-            },
-            child:
-                Container(
+            Container(
+              height: 50.0,
+              width: MediaQuery.of(context).size.width / 3,
+              child: new TextField(
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(40.0),
+                    borderSide: BorderSide(
+                      color: Colors.grey[200],
+                      width: 1.8,
+                    ),
+                  ),
+                  hintText: 'Enter Category Name',
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+                controller: nameController,
+                // validator: (val) => val.isEmpty ? 'Enter a name' : null,
+              ),
+            ),
+            Padding(padding: EdgeInsets.all(20.0)),
+            RaisedButton(
+              onPressed: () {
+                // _pickImage();
+                _startFilePicker();
+              },
+              child: Container(
                   height: 50.0,
                   width: 300.0,
-                  child: Row(children: [new Icon(Icons.add), new Text('Select an image'), ])),
-          ),
-          Padding(padding: EdgeInsets.all(20.0)),
-          RaisedButton(
-            onPressed: () {
-              _uploadData();
-            },
-            child:
-                Container(
+                  child: Row(children: [
+                    new Icon(Icons.add),
+                    new Text('Select an image'),
+                  ])),
+            ),
+            Padding(padding: EdgeInsets.all(20.0)),
+            RaisedButton(
+              onPressed: () {
+                setState(() async {
+                  print(uploadedImage.toString() + '(first **************');
+                });
+              },
+              child: Container(
                   height: 50.0,
                   width: 300.0,
-                  child: Row(children: [new Icon(Icons.add), new Text('Add', style: TextStyle(color: Colors.red)), ])),
-          ),
-        ],
-      ),
+                  child: Row(children: [
+                    new Icon(Icons.add),
+                    new Text('Upload Image'),
+                  ])),
+            ),
+            Padding(padding: EdgeInsets.all(20.0)),
+            RaisedButton(
+              onPressed: () {
+                print(url.path +
+                    " *************** " +
+                    url.toString() +
+                    "      .....           " +
+                    url.scheme +
+                    '\n\n\n');
+              },
+              child: Container(
+                  height: 50.0,
+                  width: 300.0,
+                  child: Row(children: [
+                    new Icon(Icons.add),
+                    new Text('Add', style: TextStyle(color: Colors.red)),
+                  ])),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  _uploadData() async {
-    storageReference = FirebaseStorage.instance.ref().child("image/${nameController.text}");
-    final StorageUploadTask uploadTask = storageReference.putFile(pickedImage);
-    final StorageTaskSnapshot downloadUrl = await (uploadTask.onComplete);
-    url = (await downloadUrl.ref.getDownloadURL());
-    print(url + "************");
+  _createRecord() async {
+    DocumentReference ref = await databaseReference
+        .collection('categories')
+        .add({'name': nameController.text, 'image': url});
+    print(ref);
   }
-  _pickImage()  async {
-    File temp = await ImagePickerWeb.getImage(outputType: ImageType.file);
-    if(temp != null) {
-      setState(() {
-        pickedImage = temp;
-        
-      });
-    }
+
+//method to load image and update `uploadedImage`
+
+  _startFilePicker() async {
+    InputElement uploadInput = FileUploadInputElement();
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) {
+      // read file content as dataURL
+      final files = uploadInput.files;
+      if (files.length == 1) {
+        final file = files[0];
+        FileReader reader = FileReader();
+
+        reader.onLoadEnd.listen((e) {
+          setState(() {
+            uploadedImage = reader.result;
+          });
+        });
+
+        reader.onError.listen((fileEvent) {
+          setState(() {
+            option1Text = "Some Error occured while reading the file";
+          });
+        });
+
+        reader.readAsArrayBuffer(file);
+      }
+    });
+    print(uploadedImage.toString() + " ******************");
   }
 }

@@ -77,14 +77,15 @@ class _SignUpFormState extends State<SignUpForm> {
             color: Colors.blue,
             textColor: Colors.white,
             onPressed: () {
-              if(_firstNameTextController.text == 'azzam' && _usernameTextController.text == 'admin') {
-                notAdmin = false;
-                Navigator.push(context, new MaterialPageRoute(builder: (context) => AdminPanel()));
-              }else{
-                setState(() {
-                  notAdmin = true;
-                });
-              }
+              // if(_firstNameTextController.text == 'azzam' && _usernameTextController.text == 'admin') {
+              //   notAdmin = false;
+              //   Navigator.push(context, new MaterialPageRoute(builder: (context) => AdminPanel()));
+              // }else{
+              //   setState(() {
+              //     notAdmin = true;
+              //   });
+              // }
+              Navigator.push(context, new MaterialPageRoute(builder: (context) => AdminPanel()));
 
             },
             child: Text('Sign In'),

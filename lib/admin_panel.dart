@@ -78,31 +78,23 @@ class _AdminPanelState extends State<AdminPanel> {
 
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 0.0),
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: new Container(
-                      height: 80.0,
-                      width: 350.0,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(35.0),
-                      ),
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(top: 12.0),
-                          ),
-                          FlatButton(
-                            onPressed: () {},
-                            child: Center(
-                              child: Text(
-                                document['name'],
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                  child: new Container(
+                    height: 80.0,
+                    width: 350.0,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(35.0),
                     ),
+                    child: FlatButton(
+                        onPressed: () {
+                          
+                        },
+                        child: Row(children: [
+                          new Icon(Icons.add),
+                          new Text(
+                            document['name'],
+                            textAlign: TextAlign.center,
+                          ),
+                        ])),
                   ),
                 );
               },
